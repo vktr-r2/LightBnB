@@ -14,20 +14,17 @@ const pool = new Pool({
 
 /// Users
 
-/**
- * Get a single user from the database given their email.
- * @param {String} email The email of the user.
- * @return {Promise<{}>} A promise to the user.
-*/
+//Get a single user from the database given their email.
+
 const getUserWithEmail = function (email) {
-  let resolvedUser = null;
-  for (const userId in users) {
-    const user = users[userId];
-    if (user?.email.toLowerCase() === email?.toLowerCase()) {
-      resolvedUser = user;
-    }
-  }
-  return Promise.resolve(resolvedUser);
+  return pool
+    .query(`SELECT * FROM users WHERE email = $1`, [email])
+    .then((result) => {
+      return(result.rows[0]);
+    })
+    .catch((err) => {
+      return null;
+    });
 };
 
 /**
