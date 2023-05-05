@@ -27,11 +27,6 @@ const getUserWithEmail = function (email) {
     });
 };
 
-/**
- * Get a single user from the database given their id.
- * @param {string} id The id of the user.
- * @return {Promise<{}>} A promise to the user.
-*/
 const getUserWithId = function (id) {
   return pool
     .query(`SELECT * FROM users WHERE id = $1`, [id])
@@ -63,11 +58,6 @@ const addUser = function (user) {
 
 /// Reservations
 
-/**
- * Get all reservations for a single user.
- * @param {string} guest_id The id of the user.
- * @return {Promise<[{}]>} A promise to the reservations.
-*/
 const getAllReservations = function (guest_id, limit = 10) {
   return pool
     .query(`
@@ -105,16 +95,52 @@ const getAllProperties = (options, limit = 10) => {
 
 
 
-/**
- * Add a property to the database
- * @param {{}} property An object containing all of the property details.
- * @return {Promise<{}>} A promise to the property.
- */
+
 const addProperty = function (property) {
-  const propertyId = Object.keys(properties).length + 1;
-  property.id = propertyId;
-  properties[propertyId] = property;
-  return Promise.resolve(property);
+  return pool
+  .query(`
+  INSERT INTO properties (
+  owner_id,
+  title,
+  description,
+  thumbnail_photo_url,
+  cover_photo_url,
+  cost_per_night,
+  street,
+  city,
+  province,
+  post_code,
+  country,
+  parking_spaces,
+  number_of_bathrooms,
+  number_of_bedrooms)
+  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+  RETURNING *;
+  `, [
+    property.owner_id,
+    property.title,
+    property.description,
+    property.thumbnail_photo_url,
+    property.cover_photo_url,
+    property.cost_per_night,
+    property.street,
+    property.city,
+    property.province,
+    property.post_code,
+    property.country,
+    property.parking_spaces,
+    property.number_of_bathrooms,
+    property.number_of_bedrooms
+  ])
+  .then((result) => {
+    console.log(result);
+    console.log(result.rows);
+    console.log(result.rows[0])
+    return(result.rows[0]);
+  })
+  .catch((err) => {
+    return null;
+  });
 };
 
 module.exports = {
